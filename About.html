@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Bikes • Cars • Buses — Features Explorer</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa7b2;--accent:#2dd4bf;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box}body{font-family:Inter,Segoe UI,system-ui,Arial;margin:0;background:linear-gradient(180deg,#071025 0%,#071825 60%);color:#e6f0f2;min-height:100vh}
+    .app{max-width:1100px;margin:28px auto;padding:20px}
+    header{display:flex;gap:12px;align-items:center;justify-content:space-between}
+    h1{margin:0;font-size:20px;letter-spacing:0.2px}
+    .controls{display:flex;gap:10px;align-items:center}
+    .search{background:var(--card);border:1px solid rgba(255,255,255,0.03);padding:8px 12px;border-radius:10px;color:inherit}
+    .btn{background:var(--accent);color:#012;padding:8px 12px;border-radius:10px;border:none;cursor:pointer}
+    .pill{background:var(--glass);padding:6px 8px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);font-size:13px}
+
+    .tabs{display:flex;gap:8px;margin:18px 0}
+    .tab{padding:10px 14px;border-radius:10px;cursor:pointer;background:transparent;border:1px solid transparent}
+    .tab.active{background:linear-gradient(90deg,rgba(45,212,191,0.12),rgba(45,212,191,0.06));border:1px solid rgba(45,212,191,0.18);color:var(--accent)}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+    .card{background:var(--card);padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);min-height:240px;display:flex;flex-direction:column;gap:10px}
+    .card .media{display:flex;align-items:center;gap:12px}
+    .svg{width:72px;height:72px;background:linear-gradient(120deg,#062437,#0a3140);border-radius:10px;display:flex;align-items:center;justify-content:center}
+    .name{font-weight:600}
+    .features{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;font-size:13px;color:var(--muted)}
+    .feature{display:flex;gap:8px;align-items:center}
+    .feature .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:0 0 8px}
+
+    footer{margin-top:18px;display:flex;gap:8px;align-items:center;justify-content:space-between}
+    .actions{display:flex;gap:8px}
+
+    /* compare modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.6);padding:20px}
+    .modal.open{display:flex}
+    .sheet{background:#071427;padding:20px;border-radius:12px;min-width:320px;max-width:900px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px dashed rgba(255,255,255,0.03);text-align:left}
+
+    @media (max-width:520px){.features{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Vehicles Explorer — Bikes · Cars · Buses</h1>
+        <div style="color:var(--muted);font-size:13px;margin-top:6px">Interactive single-file demo with 9 features per vehicle</div>
+      </div>
+
+      <div class="controls">
+        <input id="search" class="search" placeholder="Search feature or name..." />
+        <button id="clear" class="pill">Clear</button>
+        <button id="theme" class="pill">Toggle Theme</button>
+      </div>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-cat="bikes">Bikes</button>
+      <button class="tab" data-cat="cars">Cars</button>
+      <button class="tab" data-cat="buses">Buses</button>
+      <div style="flex:1"></div>
+      <div class="pill">Compare: <span id="cmpCount">0</span></div>
+    </div>
+
+    <main>
+      <div class="grid" id="grid"></div>
+    </main>
+
+    <footer>
+      <div class="actions">
+        <button id="compareBtn" class="btn">Open Compare</button>
+        <button id="exportBtn" class="pill">Export CSV</button>
+        <button id="favBtn" class="pill">Show Favorites</button>
+      </div>
+      <div style="color:var(--muted);font-size:13px">Tip: Click cards to toggle selection for compare / favorite (double-click to open details)</div>
+    </footer>
+  </div>
+
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="sheet">
+      <button id="closeModal" class="pill" style="float:right">Close</button>
+      <h3 id="modalTitle">Compare</h3>
+      <div id="compareArea"></div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Sample data: each vehicle has 9 features =====
+    const data = {
+      bikes: [
+        {id:'bike1',name:'City Cruiser',features:['Lightweight frame','Single-speed','Basket included','Manual brakes','LED reflector','Foldable kickstand','28-inch wheels','Comfort saddle','Economical']},
+        {id:'bike2',name:'Mountain Ranger',features:['Sturdy frame','21-speed','Suspension fork','Disc brakes','Wide tyres','Shock absorbent seat','Hydraulic dampers','Off-road ready','High traction']},
+        {id:'bike3',name:'Electric Glide',features:['Electric motor','Range 60km','Removable battery','Regenerative brake','LCD display','7-speed gear','Pedal assist','Quick charge','Anti-theft alarm']}
+      ],
+      cars: [
+        {id:'car1',name:'Urban Compact',features:['Fuel efficient','5 seats','Automatic','Rear camera','Air conditioning','Bluetooth','ABS','Low emissions','Compact size']},
+        {id:'car2',name:'Family Sedan',features:['Spacious boot','7 airbags','Cruise control','Climate control','Isofix seats','Lane assist','Keyless entry','Touchscreen','Stable ride']},
+        {id:'car3',name:'Electric Sedan',features:['Zero emissions','Fast charge','Autopilot assist','Battery warranty','Regenerative braking','Smartphone app','Panoramic roof','High torque','Silent drive']}
+      ],
+      buses: [
+        {id:'bus1',name:'City Shuttle',features:['Low-floor entry','Handrails','Wheelchair ramp','Frequent stops','Standing room','AC','LED route display','High-capacity','Fuel efficient']},
+        {id:'bus2',name:'Intercity Coach',features:['Reclining seats','Luggage bay','Restroom','Wi-Fi','Entertainment system','Large windows','Seat belts','Long-range','Onboard kitchen']},
+        {id:'bus3',name:'Electric Bus',features:['Zero emissions','Fast depot charging','Battery monitoring','Quiet operation','High passenger capacity','Regenerative braking','Smart scheduling','Energy saving HVAC','Low maintenance']}
+      ]
+    }
+
+    // state
+    let current = 'bikes';
+    let compareSet = new Set();
+    let favorites = new Set(JSON.parse(localStorage.getItem('fav')||'[]'));
+
+    const grid = document.getElementById('grid');
+    const tabs = document.querySelectorAll('.tab');
+    const search = document.getElementById('search');
+    const cmpCount = document.getElementById('cmpCount');
+    const modal = document.getElementById('modal');
+    const compareArea = document.getElementById('compareArea');
+
+    function render(){
+      grid.innerHTML='';
+      const list = data[current];
+      const q = search.value.trim().toLowerCase();
+
+      list.filter(v=>{
+        if(!q) return true;
+        if(v.name.toLowerCase().includes(q)) return true;
+        return v.features.some(f=>f.toLowerCase().includes(q));
+      }).forEach(v=>{
+        const card = document.createElement('article');card.className='card';card.tabIndex=0;
+        card.dataset.id=v.id;
+
+        const media = document.createElement('div');media.className='media';
+        const svg = document.createElement('div');svg.className='svg';svg.innerHTML = `<svg width="42" height="42" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="white" stroke-opacity="0.06"/><path d="M4 16c1.5-2 3-2 5-2" stroke="white" stroke-opacity="0.14" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+        const meta = document.createElement('div');meta.style.flex='1';
+        meta.innerHTML = `<div class="name">${v.name}</div><div style="color:var(--muted);font-size:13px;margin-top:6px">${v.features.slice(0,2).join(' • ')}</div>`;
+        media.appendChild(svg);media.appendChild(meta);
+
+        const features = document.createElement('div');features.className='features';
+        v.features.forEach(f=>{const e=document.createElement('div');e.className='feature';e.innerHTML=`<div class="dot"></div><div>${f}</div>`;features.appendChild(e)});
+
+        const foot = document.createElement('div');foot.style.marginTop='auto';foot.style.display='flex';foot.style.justifyContent='space-between';
+        const left = document.createElement('div');left.style.color='var(--muted)';left.style.fontSize='13px';left.textContent = '9 features';
+        const right = document.createElement('div');
+        const fav = document.createElement('button');fav.className='pill';fav.style.marginRight='6px';fav.textContent = favorites.has(v.id)?'★ Favorited':'☆ Favorite';
+        const sel = document.createElement('button');sel.className='pill';sel.textContent = compareSet.has(v.id)?'Remove':'Select';
+        right.appendChild(fav);right.appendChild(sel);
+
+        foot.appendChild(left);foot.appendChild(right);
+
+        card.appendChild(media);card.appendChild(features);card.appendChild(foot);
+
+        // interactions
+        card.addEventListener('click',()=>{
+          // toggle compare selection
+          if(compareSet.has(v.id)) compareSet.delete(v.id); else compareSet.add(v.id);
+          updateCmpCount();render();
+        });
+        card.addEventListener('dblclick',()=>openDetails(v));
+        fav.addEventListener('click',e=>{e.stopPropagation();toggleFav(v.id);render();});
+        sel.addEventListener('click',e=>{e.stopPropagation();if(compareSet.has(v.id)) compareSet.delete(v.id); else compareSet.add(v.id);updateCmpCount();render();});
+
+        grid.appendChild(card);
+      });
+    }
+
+    function updateCmpCount(){cmpCount.textContent = compareSet.size}
+
+    // open details modal for a single vehicle
+    function openDetails(v){
+        modal.classList.add('open');modal.setAt}
