@@ -1,0 +1,156 @@
+.navbar-brand{
+    font-weight: 500;
+    color: #171818;
+    font-size: 25px;
+}
+
+.login-button{
+    background-color: #121213;
+    color: rgb(255, 252, 252);
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 50px;
+    text-decoration: none;
+    transition: .3s background-color;
+}
+
+.login-button:hover{
+    background:#282424;
+}
+
+.navbar-toggler{
+    border: none;
+    font-size: 1.25rem;
+}
+
+.navbar-toggler:focus,
+.btn-close:focus{
+    box-shadow: none;
+    outline: none;
+}
+
+.nav-link{
+    color: #121213;
+}
+
+.nav-link:hover{
+    color: #f5f1f1;
+}
+
+.hero{
+    background: #3b5d50;
+    padding: calc(8rem - 30px) 0 8rem 0;
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+}
+.hero-img-wrap img{
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,.25);
+}
+.btn-explore{
+    background:#000;
+    color:#fff9f9;
+    border-radius:30px;
+}
+
+.btn-explore:hover,
+.btn-explore:focus,
+.btn-explore:active{
+    background:#000;
+    color:#fff;
+}
+
+
+.intro-excerpt{
+    max-width: 450px;
+    position: relative;
+    z-index: 4;
+}
+
+h1{
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 30px;
+    font-size: 54px;
+}
+
+p{
+    color: whitesmoke;
+    margin-bottom: 30px;
+}
+
+/* BUTTON */
+.btn{
+    font-weight: 600;
+    padding: 12px;
+    border-radius: 30px;
+    color:#edeef1;
+    background:#000000;
+}
+
+.btn:hover{
+    background:#1f1f1e;
+    color:#fff;
+}
+
+/* PRODUCT SECTION */
+
+.product-section{
+    padding: 7rem 0;
+}
+
+.product-item{
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    position: relative;
+    padding-bottom: 50px;
+    cursor: pointer;
+}
+
+.product-thumbnail{
+    margin-bottom: 30px;
+    position: relative;
+    top: 0;
+    transition: .3s all ease;
+}
+
+.product-item h3{
+    font-weight: 600;
+    font-size: 16px;
+    color: rgb(9, 9, 9);
+}
+
+.product-item strong{
+    color: rgb(8, 8, 8);
+}
+
+.icon-cross{
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    left: 50%;
+    bottom: 30px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    opacity: 0;
+    visibility: hidden;
+    transition: .3s all ease;
+}
+
+.product-item:hover .product-thumbnail{
+    top: -25px;
+}
+
+.product-item:hover .icon-cross{
+    bottom: 0;
+    opacity: 1;
+    visibility: visible;
+}
+
+/* WHY CHOOSE US */
+
+.why-choose-section{
+    padding: 7rem 0;
+}
